@@ -5,7 +5,12 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 let bot = null;
 
 if (token && token !== 'seu_token_aqui') {
-  bot = new TelegramBot(token, { polling: false });
+  bot = new TelegramBot(token, { 
+    polling: false,
+    request: {
+      timeout: 10000 // 10 segundos de limite para evitar travamentos de rede
+    }
+  });
 } else {
   console.warn('TELEGRAM_BOT_TOKEN não configurado. O envio para o Telegram não funcionará.');
 }

@@ -2,7 +2,10 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-const dbPath = process.env.DB_PATH || path.join(__dirname, '../../data/database.sqlite');
+let dbPath = process.env.DB_PATH || path.join(__dirname, '../../data/database.sqlite');
+if (!path.isAbsolute(dbPath)) {
+  dbPath = path.resolve(__dirname, '../../', dbPath);
+}
 const dbDir = path.dirname(dbPath);
 
 if (!fs.existsSync(dbDir)) {
