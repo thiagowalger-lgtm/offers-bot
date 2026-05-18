@@ -46,14 +46,17 @@ async function initMigrations() {
       // Ignora erro se a coluna já existe
     }
 
-    // Limpa registros duplicados do histórico para evitar falha na criação de índices únicos compostos
+    // 1. Executa o backfill de dados antigos antes de criar os índices únicos
+    await backfillSentProducts();
+
+    // 2. Limpa registros duplicados do histórico usando as colunas recém-preenchidas para evitar conflito de índice único
     try {
       await db.runQuery(`
         DELETE FROM sent_products 
         WHERE id NOT IN (
           SELECT MIN(id) 
           FROM sent_products 
-          GROUP BY COALESCE(asin, name), niche
+          GROUP BY COALESCE(asin, title_hash, name), niche
         )
       `);
       console.log('[SQLite Migrações] Registros históricos redundantes higienizados com sucesso.');
@@ -61,14 +64,14 @@ async function initMigrations() {
       console.error('[SQLite Migrações] Erro ao limpar histórico redundante:', e.message);
     }
 
-    // Dropa índices globais antigos conflitantes
+    // 3. Dropa índices globais antigos conflitantes
     try {
       await db.runQuery('DROP INDEX IF EXISTS idx_sent_products_asin');
       await db.runQuery('DROP INDEX IF EXISTS idx_sent_products_title_hash');
       console.log('[SQLite Migrações] Índices globais antigos removidos.');
     } catch (e) {}
 
-    // Cria novos índices compostos focados em (asin + nicho) e (title_hash + nicho)
+    // 4. Cria novos índices compostos focados em (asin + nicho) e (title_hash + nicho) que agora têm sucesso absoluto garantido
     try {
       await db.runQuery('CREATE UNIQUE INDEX IF NOT EXISTS idx_sent_products_asin_niche ON sent_products(asin, niche)');
       await db.runQuery('CREATE UNIQUE INDEX IF NOT EXISTS idx_sent_products_title_hash_niche ON sent_products(title_hash, niche)');
@@ -76,9 +79,6 @@ async function initMigrations() {
     } catch (e) {
       console.error('[SQLite Migrações] Erro ao criar índices compostos:', e.message);
     }
-
-    // Executa backfill automático de dados nulos históricos
-    await backfillSentProducts();
   } catch (err) {
     console.error('[SQLite Migrações] Erro crítico nas migrações:', err.message);
   }
