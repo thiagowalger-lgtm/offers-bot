@@ -47,6 +47,38 @@ function initDb() {
       status TEXT DEFAULT 'pending', -- 'pending', 'sent'
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    // Semeador automático de grupos padrão (Self-Healing Bootstrapper)
+    db.get("SELECT COUNT(*) as count FROM groups", (err, row) => {
+      if (err) return;
+      if (row && row.count === 0) {
+        console.log('[SQLite Seeder] 🌱 Semeando canais e grupos padrão no banco de dados...');
+        const stmt = db.prepare("INSERT INTO groups (niche, platform, target_id) VALUES (?, ?, ?)");
+        
+        // Canais do Telegram
+        stmt.run('Cozinha', 'telegram', '@garimpodigitalprimehub');
+        stmt.run('Beleza feminina', 'telegram', '@ofertasvaultbrasil247');
+        stmt.run('Eletrônicos', 'telegram', '@primeachadosxbrasil');
+        stmt.run('Gamer', 'telegram', '@descontosecretoshubbr');
+        stmt.run('Pet', 'telegram', '@garimpoeliteoficialbr');
+        stmt.run('Leitura', 'telegram', '@ofertasquanticasprime');
+        stmt.run('Academia_Fitness', 'telegram', '@achadosblackvaultbr');
+        stmt.run('Mobile_Games', 'telegram', '@primeimpulsodealsbr');
+        
+        // Grupos do WhatsApp
+        stmt.run('Gamer', 'whatsapp', '120363408801824800@g.us');
+        stmt.run('Cozinha', 'whatsapp', '120363427235389022@g.us');
+        stmt.run('Eletrônicos', 'whatsapp', '120363407495964635@g.us');
+        stmt.run('Beleza feminina', 'whatsapp', '120363427802091162@g.us');
+        stmt.run('Pet', 'whatsapp', '120363410226131492@g.us');
+        stmt.run('Leitura', 'whatsapp', '120363426209729628@g.us');
+        stmt.run('Academia_Fitness', 'whatsapp', '120363426157432603@g.us');
+        stmt.run('Mobile_Games', 'whatsapp', '120363427376215727@g.us');
+        
+        stmt.finalize();
+        console.log('[SQLite Seeder] ✅ Canais e grupos padrão semeados com sucesso absoluto.');
+      }
+    });
   });
 }
 
