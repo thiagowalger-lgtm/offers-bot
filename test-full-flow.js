@@ -125,6 +125,15 @@ assert(sanitizeCategory(mockSmartband, 'Academia_Fitness') === 'Eletrônicos', '
 const mockMicroondas = { name: 'MONDIAL Micro-Ondas Branco 1200W', keywordSource: 'Cozinha' };
 assert(sanitizeCategory(mockMicroondas, 'Cozinha') === 'Eletrônicos', 'Sanitizador força Micro-Ondas para "Eletrônicos" (eletrodoméstico de linha branca em vez de Cozinha)');
 
+const mockPulseiraRedmi = { name: 'Pulseira Silicone Borracha Para Xiaomi Redmi Watch 3 ACTIVE', keywordSource: 'xiaomi redmi' };
+assert(sanitizeCategory(mockPulseiraRedmi, 'Mobile_Games') === 'Eletrônicos', 'Sanitizador força Pulseira Redmi Watch para "Eletrônicos" (evitando conflito com Mobile_Games)');
+
+const mockPuloGato = { name: 'Soft skills para a vida: o pulo do gato para desenvolver habilidades', keywordSource: 'desenvolvimento pessoal' };
+assert(sanitizeCategory(mockPuloGato, 'Pet') === 'Leitura', 'Sanitizador força livro "pulo do gato" para "Leitura" (evitando conflito com gato de Pet)');
+
+const mockProdutividade = { name: 'Produtividade redimida', keywordSource: 'produtividade' };
+assert(sanitizeCategory(mockProdutividade, 'Eletrônicos') === 'Leitura', 'Sanitizador força livro de produtividade para "Leitura" (usando a inteligência de busca)');
+
 console.log('');
 
 // ─────────────────────────────────────────────────────────────────────────────

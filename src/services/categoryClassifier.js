@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const searchSources = require('../config/searchSources');
 
 let genAI = null;
 
@@ -7,6 +8,20 @@ function getGenAI() {
     genAI = new GoogleGenerativeAI(genAI);
   }
   return genAI;
+}
+
+/**
+ * Identifica a qual categoria pertence uma determinada palavra-chave de busca
+ */
+function getSearchCategoryOfKeyword(keyword) {
+  if (!keyword) return null;
+  const normalizedKeyword = keyword.toLowerCase().trim();
+  for (const [cat, words] of Object.entries(searchSources)) {
+    if (words.some(w => w.toLowerCase().trim() === normalizedKeyword)) {
+      return cat;
+    }
+  }
+  return null;
 }
 
 /**
@@ -46,12 +61,12 @@ function sanitizeCategory(product, currentCategory) {
   }
 
   // ─── 0.1. REGRA: RELÓGIOS, SMARTWATCHES E SMARTBANDS ───
-  // Relógios, smartwatches e smartbands sempre vão para Eletrônicos para evitar irem para Academia/Fitness
+  // Relógios, smartwatches, smartbands e acessórios como pulseiras/straps sempre vão para Eletrônicos para evitar irem para Academia/Fitness ou Mobile_Games
   const isWatch = name.includes('smartwatch') || name.includes('smartband') || 
-                  name.includes('relogio inteligente') || name.includes('relogio digital') || 
-                  name.includes('apple watch') || name.includes('galaxy watch') || 
-                  name.includes('huawei band') || name.includes('mi band') || 
-                  /\b(relogio|smartband|smartwatch)\b/.test(name);
+                  name.includes('relogio') || name.includes('watch') || 
+                  name.includes('pulseira') || name.includes('pulseiras') || 
+                  name.includes('strap') || name.includes('band') || 
+                  /\b(relogio|smartband|smartwatch|watch|pulseira|strap)\b/.test(name);
   if (isWatch) {
     return 'Eletrônicos';
   }
@@ -60,9 +75,17 @@ function sanitizeCategory(product, currentCategory) {
   const readingTerms = [
     /\bkindle\b/, /\blivro\b/, /\bebook\b/, /\bcolecao livros\b/, /\bbox livros\b/,
     /\bmanga\b/, /\bquadrinhos\b/, /\bhq\b/, /\brevista\b/, /\bnovela\b/,
-    /\bbiografia\b/, /\bautoajuda\b/, /\bliteratura\b/, /\bedicao ilustrada\b/
+    /\bbiografia\b/, /\bautoajuda\b/, /\bliteratura\b/, /\bedicao ilustrada\b/,
+    /\bcapa comum\b/, /\bcapa dura\b/, /\beditora\b/, /\bprodutividade\b/,
+    /\bdesenvolvimento pessoal\b/, /\binteligencia emocional\b/, /\bhabitos\b/
   ];
   let isReading = readingTerms.some(regex => regex.test(name) || regex.test(hint));
+  
+  // Se a palavra-chave de origem for categorizada como Leitura, e não for tecnologia óbvia, assume Leitura
+  const keywordCat = getSearchCategoryOfKeyword(rawHint);
+  if (keywordCat === 'Leitura' && !name.includes('luminaria') && !name.includes('suporte')) {
+    isReading = true;
+  }
   
   // Anti-Falso Positivo para TVs/Monitores e produtos de informática da marca HQ (ex: Smart TV HQ, Monitor HQ)
   if (name.includes('hq') && /\b(tv|television|smart|monitor|screen|painel|led|lcd|teclado|pc|notebook)\b/.test(name)) {
@@ -97,7 +120,14 @@ function sanitizeCategory(product, currentCategory) {
     /\bbrinquedo pet\b/, /\bcama pet\b/, /\barranhador\b/, /\btapete higienico\b/,
     /\bcaixa de transporte\b/, /\bcaes\b/
   ];
-  if (petTerms.some(regex => regex.test(name) || regex.test(hint))) {
+  let isPet = petTerms.some(regex => regex.test(name) || regex.test(hint));
+  
+  // Anti-Falso Positivo para a expressão idiomática "pulo do gato" (livros de negócios/soft skills)
+  if (name.includes('pulo do gato')) {
+    isPet = false;
+  }
+  
+  if (isPet) {
     return 'Pet';
   }
 
