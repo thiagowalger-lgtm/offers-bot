@@ -59,8 +59,8 @@ app.listen(PORT, () => {
     runJobs();
   });
   
-  // Agendamento do Disparo a cada minuto (Telegram e fila WhatsApp)
-  cron.schedule('* * * * *', async () => {
+  // Agendamento do Disparo a cada 10 minutos (Telegram e fila WhatsApp)
+  cron.schedule('*/10 * * * *', async () => {
     await dispatchNextRound();
   });
   
@@ -70,8 +70,8 @@ app.listen(PORT, () => {
     runAggregator();
   });
 
-  // Worker do WhatsApp: processa a fila a cada minuto
-  cron.schedule('* * * * *', async () => {
+  // Worker do WhatsApp: processa a fila a cada 10 minutos
+  cron.schedule('*/10 * * * *', async () => {
     await runWhatsAppWorker();
   });
   
