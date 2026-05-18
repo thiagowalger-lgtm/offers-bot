@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // API Base URL
-  const API_URL = 'http://localhost:3000';
+  const API_URL = '';
 
   // Toast System
   function showToast(message, isError = false) {
