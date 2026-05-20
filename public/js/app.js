@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // API Base URL
-  const API_URL = '';
+  const API_URL = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
 
   // Toast System
   function showToast(message, isError = false) {

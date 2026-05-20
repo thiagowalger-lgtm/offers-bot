@@ -1,10 +1,11 @@
+require('dotenv').config();
 const axios = require('axios');
 const git = require('isomorphic-git');
 const fs = require('fs');
 const path = require('path');
 const http = require('isomorphic-git/http/node');
 
-const TOKEN = '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';
+const TOKEN = process.env.GITHUB_TOKEN || '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';
 const USERNAME = 'thiagowalger-lgtm';
 const REPO = 'offers-bot';
 const REPO_URL = `https://github.com/${USERNAME}/${REPO}`;

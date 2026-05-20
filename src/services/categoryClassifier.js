@@ -5,7 +5,7 @@ let genAI = null;
 
 function getGenAI() {
   if (!genAI && process.env.GEMINI_API_KEY) {
-    genAI = new GoogleGenerativeAI(genAI);
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   }
   return genAI;
 }
@@ -193,6 +193,12 @@ function sanitizeCategory(product, currentCategory) {
   const validCategories = new Set(['Gamer', 'Cozinha', 'Eletrônicos', 'Beleza feminina', 'Pet', 'Leitura', 'Academia_Fitness', 'Mobile_Games']);
   if (validCategories.has(currentCategory)) {
     return currentCategory;
+  }
+
+  // Se a categoria atual não for válida (ex: 'Outros' ou nula), tenta inferir a partir da palavra-chave de origem
+  const inferredCat = getSearchCategoryOfKeyword(rawHint);
+  if (inferredCat && validCategories.has(inferredCat)) {
+    return inferredCat;
   }
 
   return 'Eletrônicos'; // Catch-all default seguro
