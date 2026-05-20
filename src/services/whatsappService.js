@@ -71,8 +71,9 @@ async function startWhatsApp() {
 // Lista todos os grupos do WhatsApp com nome e ID
 async function listGroups() {
   try {
-    if (!sock) return;
+    if (!sock) return [];
     const groups = await sock.groupFetchAllParticipating();
+    const groupList = [];
     
     console.log('\n[WhatsApp] 📋 LISTA DE GRUPOS (copie os IDs para cadastrar):');
     console.log('─'.repeat(60));
@@ -80,10 +81,13 @@ async function listGroups() {
       console.log(`Nome: ${g.subject}`);
       console.log(`ID:   ${g.id}`);
       console.log('─'.repeat(60));
+      groupList.push({ name: g.subject, id: g.id });
     });
     console.log('[WhatsApp] Total de grupos:', Object.keys(groups).length, '\n');
+    return groupList;
   } catch (err) {
     console.error('[WhatsApp] Erro ao listar grupos:', err.message);
+    return [];
   }
 }
 

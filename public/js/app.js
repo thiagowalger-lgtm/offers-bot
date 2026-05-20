@@ -276,6 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const spinner = document.getElementById('wappQrSpinner');
       const qrImage = document.getElementById('wappQrImage');
       const placeholder = document.getElementById('wappQrPlaceholder');
+      const groupsCard = document.getElementById('wappGroupsCard');
+      const groupsBody = document.getElementById('wappGroupsBody');
 
       if (data.status === 'connected') {
         indicator.style.backgroundColor = 'var(--accent)';
@@ -286,6 +288,32 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.style.display = 'none';
         qrImage.style.display = 'none';
         placeholder.style.display = 'block';
+        groupsCard.style.display = 'block';
+
+        // Fetch groups list if body is empty
+        if (groupsBody.children.length === 0) {
+          try {
+            const gRes = await fetch(`${API_URL}/api/whatsapp/groups`);
+            if (gRes.ok) {
+              const groups = await gRes.json();
+              groupsBody.innerHTML = '';
+              if (groups.length === 0) {
+                groupsBody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Nenhum grupo participante encontrado. Adicione o bot a um grupo primeiro.</td></tr>';
+              } else {
+                groups.forEach(g => {
+                  groupsBody.innerHTML += `
+                    <tr>
+                      <td><strong>${g.name}</strong></td>
+                      <td><code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">${g.id}</code></td>
+                    </tr>
+                  `;
+                });
+              }
+            }
+          } catch (gErr) {
+            console.error('Error loading WhatsApp groups:', gErr);
+          }
+        }
       } else if (data.status === 'qr_ready' && data.qr) {
         indicator.style.backgroundColor = '#f59e0b';
         indicator.style.boxShadow = '0 0 10px #f59e0b';
@@ -296,6 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
         qrImage.style.display = 'block';
         qrImage.src = data.qr;
         placeholder.style.display = 'none';
+        groupsCard.style.display = 'none';
+        groupsBody.innerHTML = '';
       } else {
         indicator.style.backgroundColor = 'var(--danger)';
         indicator.style.boxShadow = '0 0 10px var(--danger)';
@@ -305,6 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.style.display = 'block';
         qrImage.style.display = 'none';
         placeholder.style.display = 'none';
+        groupsCard.style.display = 'none';
+        groupsBody.innerHTML = '';
       }
     } catch (error) {
       console.error('Error fetching WhatsApp connection status:', error);

@@ -41,8 +41,8 @@ app.get('/api/whatsapp/groups', async (req, res) => {
   if (getStatus() !== 'connected') {
     return res.status(400).json({ error: 'WhatsApp não conectado ainda.' });
   }
-  await listGroups();
-  res.json({ message: 'Lista de grupos impressa no terminal do servidor.' });
+  const groups = await listGroups();
+  res.json(groups);
 });
 
 // ─── Inicialização do Servidor ─────────────────────────────────────────────────

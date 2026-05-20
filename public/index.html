@@ -253,7 +253,27 @@
               <div id="wappQrSpinner" class="spinner" style="border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
               <img id="wappQrImage" style="width: 250px; height: 250px; display: none; border-radius: 12px; border: 4px solid var(--accent); background: white; padding: 10px;" alt="WhatsApp QR Code"/>
               <p id="wappQrPlaceholder" style="color: var(--text-muted); font-size: 0.95rem; display: none; margin-top: 1rem; font-weight: 500;">✅ O WhatsApp já está conectado!</p>
-            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Groups Card -->
+        <div class="card glass mt-6" id="wappGroupsCard" style="display: none;">
+          <h3>Grupos Participantes no seu WhatsApp</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Copie o <strong>ID do Grupo</strong> desejado e adicione-o na aba <strong>Configurações</strong> correspondente ao nicho/categoria correto.
+          </p>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nome do Grupo</th>
+                  <th>ID do Grupo (JID)</th>
+                </tr>
+              </thead>
+              <tbody id="wappGroupsBody">
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
