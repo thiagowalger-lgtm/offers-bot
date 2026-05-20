@@ -3,11 +3,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const navItems = document.querySelectorAll('.nav-item');
   const tabContents = document.querySelectorAll('.tab-content');
 
+  let wappConnInterval = null;
+
   navItems.forEach(item => {
     item.addEventListener('click', () => {
       // Remove active classes
       navItems.forEach(nav => nav.classList.remove('active'));
       tabContents.forEach(tab => tab.classList.remove('active'));
+
+      // Clear previous interval if any
+      if (wappConnInterval) {
+        clearInterval(wappConnInterval);
+        wappConnInterval = null;
+      }
 
       // Add active to clicked
       item.classList.add('active');
@@ -18,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabId === 'dashboard') loadDashboard();
       if (tabId === 'whatsapp') loadWhatsAppQueue();
       if (tabId === 'settings') loadGroups();
+      if (tabId === 'whatsapp-conn') {
+        loadWhatsAppConn();
+        wappConnInterval = setInterval(loadWhatsAppConn, 3000);
+      }
     });
   });
 
@@ -251,6 +263,53 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Erro ao iniciar processamento.', true);
     }
   });
+
+  // Load WhatsApp Connection
+  async function loadWhatsAppConn() {
+    try {
+      const res = await fetch(`${API_URL}/api/whatsapp/status`);
+      const data = await res.json();
+      
+      const indicator = document.getElementById('wappConnIndicator');
+      const statusText = document.getElementById('wappConnStatusText');
+      const desc = document.getElementById('wappConnDesc');
+      const spinner = document.getElementById('wappQrSpinner');
+      const qrImage = document.getElementById('wappQrImage');
+      const placeholder = document.getElementById('wappQrPlaceholder');
+
+      if (data.status === 'connected') {
+        indicator.style.backgroundColor = 'var(--accent)';
+        indicator.style.boxShadow = '0 0 10px var(--accent)';
+        statusText.textContent = 'Conectado';
+        desc.textContent = 'O bot está conectado ao WhatsApp e pronto para enviar ofertas.';
+        
+        spinner.style.display = 'none';
+        qrImage.style.display = 'none';
+        placeholder.style.display = 'block';
+      } else if (data.status === 'qr_ready' && data.qr) {
+        indicator.style.backgroundColor = '#f59e0b';
+        indicator.style.boxShadow = '0 0 10px #f59e0b';
+        statusText.textContent = 'Aguardando QR Code';
+        desc.textContent = 'Escaneie o QR Code ao lado usando o menu "Aparelhos conectados" no seu celular.';
+        
+        spinner.style.display = 'none';
+        qrImage.style.display = 'block';
+        qrImage.src = data.qr;
+        placeholder.style.display = 'none';
+      } else {
+        indicator.style.backgroundColor = 'var(--danger)';
+        indicator.style.boxShadow = '0 0 10px var(--danger)';
+        statusText.textContent = 'Desconectado';
+        desc.textContent = 'O bot do WhatsApp está aguardando conexão. Se o QR Code não aparecer em instantes, certifique-se de que o servidor está rodando.';
+        
+        spinner.style.display = 'block';
+        qrImage.style.display = 'none';
+        placeholder.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error fetching WhatsApp connection status:', error);
+    }
+  }
 
   // Initial Load
   loadDashboard();

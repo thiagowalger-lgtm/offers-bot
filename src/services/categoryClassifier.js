@@ -53,7 +53,18 @@ function sanitizeCategory(product, currentCategory) {
   const name = normalizeText(rawName);
   const hint = normalizeText(rawHint);
 
-  // ─── 0. REGRA MESTRA: HEADSET E FONES GAMER ───
+  // ─── 0. REGRA MESTRA: DETECÇÃO DE LIVRO POR ASIN (ISBN-10) ───
+  // Livros no mercado nacional possuem ASINs puramente numéricos de 10 dígitos (que correspondem ao ISBN-10),
+  // ao contrário de mercadorias gerais cujos ASINs começam com "B" (ex: B08N1HGQ6R).
+  if (product.affiliateLink) {
+    const match = product.affiliateLink.match(/\/(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i);
+    const asin = match ? match[1].toUpperCase() : null;
+    if (asin && /^\d{9}[\dXx]$/.test(asin)) {
+      return 'Leitura';
+    }
+  }
+
+  // ─── 0.1. REGRA MESTRA: HEADSET E FONES GAMER ───
   // Headsets e fones especificamente voltados para gamer sempre vão para GAMER,
   // mesmo que mencionem compatibilidade com PS4, PS5, Xbox, etc.
   if (name.includes('headset') || name.includes('fone gamer')) {

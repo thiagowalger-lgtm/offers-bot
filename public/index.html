@@ -29,6 +29,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           Nova Oferta
         </button>
+        <button class="nav-item" data-tab="whatsapp-conn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          Conectar WhatsApp
+        </button>
         <button class="nav-item" data-tab="settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           Configurações
@@ -217,6 +221,38 @@
                   <!-- Preenchido via JS -->
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WhatsApp Connection Tab -->
+      <section id="whatsapp-conn" class="tab-content">
+        <header class="page-header">
+          <h2>Conexão do WhatsApp</h2>
+          <p>Monitore o status da conexão e conecte seu aparelho</p>
+        </header>
+
+        <div class="grid-2col">
+          <!-- Connection Status Card -->
+          <div class="card glass">
+            <h3>Status da Conexão</h3>
+            <div id="wappConnStatusContainer" style="display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem;">
+              <span id="wappConnIndicator" style="width: 14px; height: 14px; border-radius: 50%; background: var(--danger); display: inline-block; box-shadow: 0 0 10px var(--danger); transition: all 0.3s ease;"></span>
+              <span id="wappConnStatusText" style="font-weight: 600; font-size: 1.2rem;">Desconectado</span>
+            </div>
+            <p id="wappConnDesc" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; line-height: 1.6;">
+              O bot do WhatsApp está aguardando conexão. Certifique-se de escanear o QR Code ao lado para habilitar o envio automatizado e manual.
+            </p>
+          </div>
+
+          <!-- QR Code Card -->
+          <div class="card glass" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+            <h3>QR Code de Autenticação</h3>
+            <div id="wappQrContainer" style="margin-top: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+              <div id="wappQrSpinner" class="spinner" style="border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+              <img id="wappQrImage" style="width: 250px; height: 250px; display: none; border-radius: 12px; border: 4px solid var(--accent); background: white; padding: 10px;" alt="WhatsApp QR Code"/>
+              <p id="wappQrPlaceholder" style="color: var(--text-muted); font-size: 0.95rem; display: none; margin-top: 1rem; font-weight: 500;">✅ O WhatsApp já está conectado!</p>
             </div>
           </div>
         </div>

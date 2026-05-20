@@ -12,11 +12,34 @@ if (token && token !== 'seu_token_aqui') {
     }
   });
 } else {
-  console.warn('TELEGRAM_BOT_TOKEN não configurado. O envio para o Telegram não funcionará.');
+  console.warn('TELEGRAM_BOT_TOKEN não configurado ou padrão. O envio para o Telegram rodará em modo de simulação.');
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Converte formatação WhatsApp (*bold*, ~strikethrough~, _italic_) para HTML do Telegram.
+ */
+function convertWhatsappToTelegramHtml(text) {
+  if (!text) return '';
+  // Escapa primeiro os caracteres HTML <, >, & para evitar quebras de tags
+  let escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+    
+  // Converte negrito *texto* para <b>texto</b>
+  escaped = escaped.replace(/\*(.*?)\*/g, '<b>$1</b>');
+  
+  // Converte tachado ~texto~ para <s>texto</s>
+  escaped = escaped.replace(/~(.*?)~/g, '<s>$1</s>');
+  
+  // Converte itálico _texto_ para <i>texto</i>
+  escaped = escaped.replace(/_(.*?)_/g, '<i>$1</i>');
+  
+  return escaped;
 }
 
 /**
@@ -46,6 +69,7 @@ async function sendToTelegram(message, image, niche) {
     }
 
     let overallSuccess = false;
+    const htmlMessage = convertWhatsappToTelegramHtml(message);
 
     for (const group of groups) {
       const chatId = group.target_id;
@@ -55,9 +79,14 @@ async function sendToTelegram(message, image, niche) {
       for (let attempt = 1; attempt <= retries; attempt++) {
         try {
           if (image) {
-            await bot.sendPhoto(chatId, image, { caption: message });
+            try {
+              await bot.sendPhoto(chatId, image, { caption: htmlMessage, parse_mode: 'HTML' });
+            } catch (imgErr) {
+              console.warn(`[Telegram] ⚠️ Falha ao enviar foto para ${chatId}. Tentando enviar apenas texto. Erro: ${imgErr.message}`);
+              await bot.sendMessage(chatId, htmlMessage, { parse_mode: 'HTML' });
+            }
           } else {
-            await bot.sendMessage(chatId, message);
+            await bot.sendMessage(chatId, htmlMessage, { parse_mode: 'HTML' });
           }
           console.log(`[Telegram] ✅ Oferta enviada com sucesso (Nicho: ${niche}, ChatID: ${chatId})`);
           success = true;
@@ -85,5 +114,6 @@ async function sendToTelegram(message, image, niche) {
 }
 
 module.exports = {
-  sendToTelegram
+  sendToTelegram,
+  convertWhatsappToTelegramHtml
 };

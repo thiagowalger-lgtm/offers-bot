@@ -99,10 +99,15 @@ async function sendWhatsAppMessage(groupId, text, imageUrl = null) {
 
     if (imageUrl && !imageUrl.startsWith('data:image')) {
       // Envia imagem com legenda (caption)
-      await sock.sendMessage(jid, {
-        image: { url: imageUrl },
-        caption: text
-      });
+      try {
+        await sock.sendMessage(jid, {
+          image: { url: imageUrl },
+          caption: text
+        });
+      } catch (imgErr) {
+        console.warn(`[WhatsApp] ⚠️ Falha ao enviar imagem para ${groupId}. Tentando enviar apenas texto. Erro: ${imgErr.message}`);
+        await sock.sendMessage(jid, { text });
+      }
     } else {
       // Envia apenas texto
       await sock.sendMessage(jid, { text });

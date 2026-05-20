@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 // Status da conexão do WhatsApp
 app.get('/api/whatsapp/status', (req, res) => {
-  res.json({ status: getStatus() });
+  res.json({ status: getStatus(), qr: getQrCode() });
 });
 
 // QR Code em formato de imagem para escanear pelo navegador
@@ -59,8 +59,8 @@ app.listen(PORT, () => {
     runJobs();
   });
   
-  // Agendamento do Disparo a cada 10 minutos (Telegram e fila WhatsApp)
-  cron.schedule('*/10 * * * *', async () => {
+  // Agendamento do Disparo a cada 1 minuto (Telegram e fila WhatsApp)
+  cron.schedule('* * * * *', async () => {
     await dispatchNextRound();
   });
   
@@ -70,16 +70,25 @@ app.listen(PORT, () => {
     runAggregator();
   });
 
-  // Worker do WhatsApp: processa a fila a cada 10 minutos
-  cron.schedule('*/10 * * * *', async () => {
+  // Worker do WhatsApp: processa a fila a cada 1 minuto
+  cron.schedule('* * * * *', async () => {
     await runWhatsAppWorker();
   });
   
   console.log('Sistema inicializado e aguardando ofertas.');
   
-  // Executar imediatamente na inicialização para encher as gavetas
+  // Executar imediatamente na inicialização para encher as gavetas e disparar os primeiros envios
   console.log('Iniciando a primeira orquestração para encher as gavetas imediatamente...');
-  runAggregator();
+  (async () => {
+    try {
+      await runAggregator();
+      console.log('[Startup] Gavetas abastecidas. Forçando primeiro envio imediato para Telegram e WhatsApp...');
+      await dispatchNextRound();
+      await runWhatsAppWorker();
+    } catch (err) {
+      console.error('[Startup] Erro durante a execução inicial:', err.message);
+    }
+  })();
 
   // Iniciar o WhatsApp (gera QR Code no terminal e em http://localhost:3000/api/whatsapp/qr)
   console.log('[WhatsApp] Iniciando conexão... Acesse http://localhost:3000/api/whatsapp/qr para escanear o QR Code.');
